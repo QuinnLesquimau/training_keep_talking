@@ -1,19 +1,24 @@
 import pygame, sys, random
 
 # importing mazes
-f = open("mazes.txt", 'r')
+f = open("data/mazes.txt", 'r')
 mazes = []
 for line in f.read().split('\n')[:-1]:
   mazes.append(list(map(eval,line.split(';'))))
 
+# parameters for the display
 size_screen = (233, 226)
 change_x = 24
 change_y = 24
 start_x = 58
 start_y = 46
+
 def real_coordinates(pos):
+  """To go from integer coordinates on the grid to real
+  for the display
+  """
   x, y = pos
-  return (x * change_x + start_x,
+  return (x * change_x + start_x + x/4 + y/4,
           y * change_y + start_y)
 
 screen = pygame.display.set_mode(size_screen)
@@ -21,19 +26,22 @@ grid = pygame.image.load("images/training_maze.png")
 grid_rect = grid.get_rect()
 
 def draw_screen(x, y, mark1, mark2, goal):
+  green = (0, 255, 0)
+  red = (255, 0, 0)
+  white = (255, 255, 255)
   screen.blit(grid, grid_rect)
   if mark1 is not None:
-    pygame.draw.circle(screen, (0,255,0), real_coordinates(mark1), 7, 1)
-    pygame.draw.circle(screen, (0,255,0), real_coordinates(mark2), 7, 1)
+    pygame.draw.circle(screen, green, real_coordinates(mark1), 7, 1)
+    pygame.draw.circle(screen, green, real_coordinates(mark2), 7, 1)
   if goal is not None:
-    pygame.draw.circle(screen, (255,0,0), real_coordinates(goal), 4)
+    pygame.draw.circle(screen, red, real_coordinates(goal), 4)
   position = real_coordinates((x,y))
-  pygame.draw.circle(screen, (255,255,255), position, 3)
+  pygame.draw.circle(screen, white, position, 3)
   pygame.display.update()
 
 num_keys = [pygame.key.key_code(str(n)) for n in range(9)]
-pos_x, pos_y = (0,0)
-new_pos_x, new_pos_y = (0, 0)
+pos_x, pos_y = 0, 0
+new_pos_x, new_pos_y = 0, 0
 creating_maze = False
 possible_moves, mark1, mark2 = mazes[0]
 goal = None
@@ -55,7 +63,7 @@ while True:
         new_pos_y = min(pos_y + 1, 5)
 
       if (pos_x, pos_y) != (new_pos_x, new_pos_y):
-        if creating_maze:
+        if creating_maze: # when adding a new maze in the data
           possible_moves.add(((pos_x, pos_y),
                         (new_pos_x, new_pos_y)))
           pos_x, pos_y = new_pos_x, new_pos_y
@@ -67,6 +75,8 @@ while True:
             print("ERROR!")
 
       if event.key == pygame.K_w:
+        # To add a new maze in the data.
+        """
         if creating_maze:
           f = open("mazes.txt", 'a')
           f.write(str(possible_moves) + "\n")
@@ -76,6 +86,7 @@ while True:
           print("creating maze")
         creating_maze = not creating_maze
         possible_moves = set()
+        """
 
       if event.key in num_keys:
         possible_moves, mark1, mark2 = mazes[num_keys.index(event.key)]
